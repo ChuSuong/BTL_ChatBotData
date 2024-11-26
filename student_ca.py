@@ -1,95 +1,133 @@
 # import openai
+import os
+from importlib.metadata import files
+
+from dotenv import load_dotenv
 import json
 import pandas as pd
-import matplotlib.pyplot as plt
 import requests
 
+class DataReader:
 
-API_KEY = "AIzaSyAeHhDebqy-9CIf8eRLF0vAAdSasyoYCBM"
-API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAeHhDebqy-9CIf8eRLF0vAAdSasyoYCBM"
-def read_data(path):
-    with open(path, mode='r', encoding='utf8') as file:
-        data_student = pd.read_csv(file)
-    return data_student
+    def __init__(self, api_key, folder_path):
+        if not api_key:
+            raise ValueError("API KEY không tìm thấy!")
+        self.api_key = api_key
+        self.folder_path = folder_path
+        self.data_frames = []
 
-def display(data_student):
-    data_student = data_student.dropna() #Loại bỏ hàng bị thiếu
-    print("First 5 rows of the data:")
-    print(data_student.head())
-    print("\n")
-    print("Data Information:")
-    data_student.info()
-    print("\n")
-from urllib.parse import splittag
-
-def get_gemini_embedding(text):
-    headers = {"Authorization": f"Bearer {API_KEY}"}
-    payload = {"input": text}
-    response = requests.post(API_URL, json=payload, headers=headers)
-
-    if response.status_code == 200:
+    def read_data(self):
         try:
-            response_json = response.json()
-            print(response_json)
-            return response_json.get("content", "No content")
-        except json.JSONDecoderError as e:
-            print("Lỗi phân tích cú pháp JSON:", e)
-            return None
-    else:
-        print(f"Lỗi: {response.status_code}, {response.text}")
-        return None
+            files = [f for f in os.listdir(self.folder_path) if f.endswith('.csv')]
 
-def create_embedding(data, text_column):
-    if text_column not in data.columns:
-        raise  ValueError(f"Không tìm thấy cột '{text_column}' trong dữ liệu.")
-    print("Đang tạo embeddings từ Gemini Flash. Vui lòng chờ...")
+            for file_name in files:
+                file_path = os.path.join(self.folder_path, file_name)
+                print(f"Đang đọc file: {file_path}")
+                data = pd.read_csv(file_path, encoding='utf-8')
+                # Loại bỏ khoảng trắng dư thừa ở đầu và cuối tên cột
+                data.columns = data.columns.str.strip()
 
-    data['embedding'] = data[text_column].apply(lambda x: get_gemini_embedding(x))
-    output_file = "gemini_embedded_data.csv"
-    data.to_csv(output_file, index=False)
-    print(f"Embeddings đã được lưu tại: {output_file}")
+                self.data_frames.append(data)
+        except Exception as e:
+            print(f"Lỗi khi duyệt thư mục hoặc đọc file: {e}")
 
-# def student_year(data_student):
-#     #Số lượng sinh viên quốc tế thay đổi từ 2015 - 2013 (9 năm)
-#     student_per_year = data_student.iloc[:, 1:].sum().head(9)
-#
-#     #Convert index(năm) thành kiểu int
-#     student_per_year.index = student_per_year.index.astype(int)
-#     print(student_per_year.head())  #Hiển thị tổng số sinh viên
-#
-#     #Lưu kqua tổng sv vào vector (danh sách)
-#     student_vector = student_per_year.tolist()
-#
-#     #Lưu vào file Json
-#     with open('student_embedding.json', 'w') as json_file:
-#         json.dump(student_vector, json_file)
-#
-#     #Vẽ:
-#     plt.figure(figsize=(10, 6))
-#     student_per_year.plot(kind='line', marker = 'o', color = 'skyblue')
-#
-#     plt.title("Annual Growth Trends of International Students in Canada (2015-2023)")
-#     plt.xlabel('Year')
-#     plt.ylabel('The total number of students')
-#     # plt.xticks(rotations=45)
-#
-#     #Dựng đường thẳng cho thời điểm Covid-19 (năm 2020)
-#     plt.axvline(x=2020, color='r', linestyle='--', label='COVID-19')
-#     plt.legend()
-#     plt.show()
+    #Chunking theo alpha
+    def chunk_by_alpha(self, text_column1, text_column2, text_column3):
+        if not self.data_frames:
+            print("Chưa có dữ liệu để phân mảnh.")
+            return
 
-#Đọc dữ liệu và hiển thị từ file CSV
+        # Duyệt qua từng dataframe trong danh sách data_frames
+        for idx, df in enumerate(self.data_frames):
+            print(f"Đang phân mảnh dữ liệu từ file {idx + 1} theo chữ cái đầu tiên của cột {text_column1}, {text_column2} và {text_column3} ")
+            if text_column1  not in df.columns or text_column2 not in df.columns or text_column3 not in df.columns:
+                print(f"Cột '{text_column1}' hoặc '{text_column2}' hoặc '{text_column3}' không tồn tại trong file {idx + 1}")
+                continue
+
+            # Tạo cột mới chứa chữ cái đầu tiên của giá trị trong text_column 1 và 2
+            df['first_letter_1'] = df[text_column1].apply(lambda x: str(x)[0].upper() if isinstance(x, str) else '')
+            df['first_letter_2'] = df[text_column2].apply(lambda x: str(x)[0].upper() if isinstance(x, str) else '')
+            df['first_letter_3'] = df[text_column3].apply(lambda x: str(x)[0].upper() if isinstance(x, str) else '')
+
+
+            # Nhóm theo chữ cái đầu tiên
+            grouped_1 = df.groupby('first_letter_1')
+            grouped_2 = df.groupby('first_letter_2')
+            grouped_3 = df.groupby('first_letter_3')
+
+            # Lưu kết quả nhóm vào các file riêng biệt
+            for group_name, group_df in grouped_1:
+                output_file1 = f"chunk_{group_name}_{text_column1}_{idx + 1}.csv"
+                group_df.to_csv(output_file1, index=False)
+                print(f"Đã lưu chunk '{group_name}' vào {output_file1}")
+
+            for group_name, group_df in grouped_2:
+                output_file2 = f"chunk_{group_name}_{text_column2}_{idx + 1}.csv"
+                group_df.to_csv(output_file2, index=False)
+                print(f"Đã lưu chunk '{group_name}' vào {output_file2}")
+
+            for group_name, group_df in grouped_3:
+                output_file3 = f"chunk_{group_name}_{text_column3}_{idx + 1}.csv"
+                group_df.to_csv(output_file3, index=False)
+                print(f"Đã lưu chunk '{group_name}' vào {output_file3}")
+
+
+    def display_data_frames(self):
+        if not self.data_frames:
+            print("Chưa có dữ liệu để hiển thị. Hãy chắc chắn rằng bạn đã gọi read_data_from_folder trước.")
+            return
+
+        for idx, df in enumerate(self.data_frames):
+            print(f"Thông tin file {idx + 1}:")
+            print(df.head(), "\n")
+
 if __name__ == "__main__":
-    # Đường dẫn đến file CSV
-    file_path = "Internation_students_Canada.csv"
+    #load environment vảiable
+    load_dotenv()
+    API_KEY = os.getenv("SECRET_API_KEY")
 
-    # Đọc dữ liệu
-    try:
-        data_student = read_data(file_path)
-        display(data_student)
+    #Define folder path
+    archive_folder = "archive"
 
-        # Tạo embeddings
-        data_student = create_embedding(data_student,text_column="Country of Citizenship")  # Thay 'Description' bằng cột chứa văn bản thực tế
-    except Exception as e:
-        print(f"Lỗi: {e}")
+    #Create an instance of DataReader
+    data_reader = DataReader(api_key=API_KEY, folder_path=archive_folder)
+
+    #Read and display data
+    data_reader.read_data()
+    data_reader.display_data_frames()
+    data_reader.chunk_by_alpha(text_column1="Country of Citizenship", text_column2="Province/territory", text_column3="Province/Territory" )
+
+
+
+
+
+#
+# def get_gemini_embedding(text):
+#     headers = {"Authorization": f"Bearer {API_KEY}"}
+#     payload = {"input": text}
+#     response = requests.post(API_URL, json=payload, headers=headers)
+#
+#     if response.status_code == 200:
+#         try:
+#             response_json = response.json()
+#             print(response_json)
+#             return response_json.get("content", "No content")
+#         except json.JSONDecoderError as e:
+#             print("Lỗi phân tích cú pháp JSON:", e)
+#             return None
+#     else:
+#         print(f"Lỗi: {response.status_code}, {response.text}")
+#         return None
+#
+# def create_embedding(data, text_column):
+#     if text_column not in data.columns:
+#         raise  ValueError(f"Không tìm thấy cột '{text_column}' trong dữ liệu.")
+#     print("Đang tạo embeddings từ Gemini Flash. Vui lòng chờ...")
+#
+#     data['embedding'] = data[text_column].apply(lambda x: get_gemini_embedding(x))
+#     output_file = "gemini_embedded_data.csv"
+#     data.to_csv(output_file, index=False)
+#     print(f"Embeddings đã được lưu tại: {output_file}")
+
+
 
