@@ -2,6 +2,9 @@ import os
 import logging
 from dotenv import load_dotenv
 import pandas as pd
+import openai
+import json
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -11,6 +14,7 @@ class Chunker:
         self.data_frames = data_frames
         self.folder_path = folder_path
 
+    #Phân chia dữ liệu thành các phần nhỏ với số hàng cố định
     def chunk_by_alpha(self, text_column, file_name):
         if not self.data_frames:
             logging.warning("Chưa có dữ liệu để phân mảnh.")
@@ -30,6 +34,7 @@ class Chunker:
             group_df.to_csv(output_file, index=False)
             logging.info(f"Đã lưu chunk '{group_name}' vào {output_file}")
 
+    #Phân chia dữ liệu thành các phần nhỏ với số hàng cố định
     def chunk_by_rows(self, file_name, chunk_size=5, file_index=1):
         if file_index >= len(self.data_frames):
             logging.error(f"Không tìm thấy dữ liệu cho file thứ {file_index + 1}.")
@@ -43,6 +48,36 @@ class Chunker:
             chunk_df.to_csv(output_file, index=False)
             logging.info(f"Đã lưu chunk vào {output_file}")
 
+class EmbeddingHandler:
+    def __init__(self, api_key):
+        if not api_key:
+            raise ValueError("API KEY không tìm thấy!")
+        self.api_key = api_key
+        openai.api_key = self.api_key
+
+     # Tạo và lưu các embedding từ văn bản bằng OpenAI API.
+    def generate_embeddings(self, texts):
+        embeddings = []
+        for text in texts:
+            try:
+                # Sử dụng openai.Embeddings.create 
+                response = openai.Embeddings.create(
+                    input=text,
+                    model="text-embedding-ada-002"
+                )
+                embeddings.append({
+                    "text": text,
+                    "embedding": response['data'][0]['embedding']
+                })
+            except Exception as e:
+                logging.error(f"Lỗi khi tạo embedding cho văn bản '{text}': {e}")
+        return embeddings
+
+    #Lưu danh sách embedding vào file JSON.
+    def save_embeddings_to_json(self, embeddings, output_file):
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(embeddings, f, ensure_ascii=False, indent=4)
+        logging.info(f"Đã lưu embeddings vào {output_file}")
 
 class DataReader:
     def __init__(self, api_key, folder_path):
@@ -116,38 +151,25 @@ if __name__ == "__main__":
     # Call the chunk_data method to perform chunking
     data_reader.chunk_data()
 
+    # Initialize EmbeddingHandler
+    if API_KEY:  # Đảm bảo API Key tồn tại
+        embedding_handler = EmbeddingHandler(api_key=API_KEY)
 
+        # Generate embeddings for a specific column in the first DataFrame
+        if data_reader.data_frames:
+            df = data_reader.data_frames[0]  # Chọn DataFrame đầu tiên
+            text_column = "Country of Citizenship"
 
+            if text_column in df.columns:
+                texts = df[text_column].dropna().unique().tolist()  # Lấy danh sách văn bản không trùng lặp
+                embeddings = embedding_handler.generate_embeddings(texts)
 
-#
-#
-# #
-# # def get_gemini_embedding(text):
-# #     headers = {"Authorization": f"Bearer {API_KEY}"}
-# #     payload = {"input": text}
-# #     response = requests.post(API_URL, json=payload, headers=headers)
-# #
-# #     if response.status_code == 200:
-# #         try:
-# #             response_json = response.json()
-# #             print(response_json)
-# #             return response_json.get("content", "No content")
-# #         except json.JSONDecoderError as e:
-# #             print("Lỗi phân tích cú pháp JSON:", e)
-# #             return None
-# #     else:
-# #         print(f"Lỗi: {response.status_code}, {response.text}")
-# #         return None
-# #
-# # def create_embedding(data, text_column):
-# #     if text_column not in data.columns:
-# #         raise  ValueError(f"Không tìm thấy cột '{text_column}' trong dữ liệu.")
-# #     print("Đang tạo embeddings từ Gemini Flash. Vui lòng chờ...")
-# #
-# #     data['embedding'] = data[text_column].apply(lambda x: get_gemini_embedding(x))
-# #     output_file = "gemini_embedded_data.csv"
-# #     data.to_csv(output_file, index=False)
-# #     print(f"Embeddings đã được lưu tại: {output_file}")
-#
-#
-#
+                # Save embeddings to JSON
+                output_file = os.path.join(archive_folder, "embeddings.json")
+                embedding_handler.save_embeddings_to_json(embeddings, output_file)
+            else:
+                logging.warning(f"Cột '{text_column}' không tồn tại trong DataFrame đầu tiên.")
+        else:
+            logging.warning("Không có dữ liệu nào để tạo embeddings.")
+    else:
+        logging.error("API Key không được cung cấp. Không thể khởi tạo EmbeddingHandler.")
