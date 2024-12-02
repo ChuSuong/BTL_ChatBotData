@@ -2,8 +2,9 @@ import os
 import logging
 from dotenv import load_dotenv
 import pandas as pd
-import openai
+from langchain_openai import ChatOpenAI
 import json
+
 
 
 # Configure logging
@@ -49,6 +50,7 @@ class Chunker:
             logging.info(f"Đã lưu chunk vào {output_file}")
 
 class EmbeddingHandler:
+
     def __init__(self, api_key):
         if not api_key:
             raise ValueError("API KEY không tìm thấy!")
@@ -60,10 +62,10 @@ class EmbeddingHandler:
         embeddings = []
         for text in texts:
             try:
-                # Sử dụng openai.Embeddings.create 
+                # Sử dụng openai.Embeddings.create
                 response = openai.Embeddings.create(
                     input=text,
-                    model="text-embedding-ada-002"
+                    model="text-embedding-3-small"
                 )
                 embeddings.append({
                     "text": text,
@@ -137,6 +139,7 @@ if __name__ == "__main__":
     # Load environment variable
     load_dotenv()
     API_KEY = os.getenv("SECRET_API_KEY")
+    GPT_API_KEY = os.getenv("GPT_API_KEY")
 
     # Define folder path
     archive_folder = "archive"
