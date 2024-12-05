@@ -28,17 +28,6 @@ class TextEmbedder:
         return embeddings
 
 
-    # texts = [
-    #     "This is a simple text embedding example.",
-    #     "Text embeddings help machines understand semantic meaning.",
-    #     "Sentence Transformers are powerful for semantic search."
-    # ]
-    #
-    # embedder = TextEmbedder()  # Khởi tạo đối tượng TextEmbedder
-    # embeddings = embedder.encode_text(texts)  # Mã hóa các văn bản thành các vector
-    #
-    # # In vector embedding đầu tiên và kích thước của nó
-    # print(f"Embedding đầu tiên: {embeddings[0]}")
-    # print(f"Kích thước vector: {len(embeddings[0])}")
+
 
 

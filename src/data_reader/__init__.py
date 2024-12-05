@@ -1,3 +1,3 @@
-from .reader import DataReader
+# src/data_reader/__init__.py.py.py.py
 
-__all__ = ['DataReader']
+from .reader import DataReader

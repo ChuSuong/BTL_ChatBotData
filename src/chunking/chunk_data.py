@@ -1,7 +1,6 @@
 import logging
 import os
 
-
 class Chunker:
     def __init__(self, data_frames, folder_path):
         self.data_frames = data_frames
