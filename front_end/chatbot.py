@@ -26,6 +26,13 @@ st.title("ChatBot Data!")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Hiển thị lịch sử các câu hỏi và câu trả lời trước đó
+if st.session_state.messages:
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+
 # Nhập prompt từ người dùng
 if prompt := st.chat_input("Hãy nhập yêu cầu?"):
     full_res = ""

@@ -27,11 +27,15 @@ class AIChatAssistant:
         # Tạo prompt template
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", (
-                "Bạn là một nhà phân tích dữ liệu thông minh, dựa trên số liệu từ file archive. Nếu cần, hãy giải thích và cung cấp thông tin chi tiết dựa trên dữ liệu."
+                "Bạn là một nhà phân tích dữ liệu thông minh. Nhiệm vụ của bạn là cung cấp câu trả lời chính xác và chi tiết dựa trên số liệu từ file archive. "
+                "Khi trả lời, hãy ưu tiên sử dụng thông tin cụ thể từ các văn bản được cung cấp. Nếu cần thiết, giải thích cách dữ liệu hỗ trợ câu trả lời."
             )),
             ("human", "{input}"),
             (
-            "assistant", "Dưới đây là các văn bản có liên quan: {texts}\nHãy trả lời câu hỏi dựa trên các văn bản này.")
+                "assistant",
+                "Dưới đây là các văn bản có liên quan mà bạn có thể tham khảo:\n{texts}\n"
+                "Hãy trả lời câu hỏi dựa trên các văn bản trên và chỉ cung cấp thông tin có thể suy ra từ chúng. Nếu thông tin không đủ, hãy nói rõ điều này."
+            )
         ])
 
         # Tạo output parser
