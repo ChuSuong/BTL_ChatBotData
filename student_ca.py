@@ -89,9 +89,9 @@ class DataReader:
         self.folder_path = folder_path
         self.data_frames = []
         self.file_names = [
-            "Internation_students_Canada.csv",
-            "Internation_students_Province_Canada.csv",
-            "International_Students_Study_level.csv"
+            "Students.csv",
+            "Province.csv",
+            "Studylevel.csv"
         ]
 
     def read_data(self):

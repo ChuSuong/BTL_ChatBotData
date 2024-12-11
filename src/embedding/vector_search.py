@@ -70,20 +70,3 @@ class VectorSearch:
         norm2 = np.linalg.norm(vec2)
         return dot_product / (norm1 * norm2) if norm1 > 0 and norm2 > 0 else 0
 
-    # def search(self, query_embedding):
-    #     """
-    #     Tìm kiếm các văn bản có độ tương đồng cao nhất với query embedding.
-    #     :param query_embedding: Vector embedding của truy vấn.
-    #     :return: Danh sách các kết quả (văn bản, điểm tương đồng).
-    #     """
-    #     results = []
-    #     for item in self.embeddings:
-    #         text = item["text"]
-    #         embedding = np.array(item["embedding"])
-    #         similarity = self._cosine_similarity(query_embedding, embedding)
-    #         results.append((text, similarity))
-    #
-    #     # Sắp xếp theo điểm tương đồng giảm dần và lấy top_k
-    #     results = sorted(results, key=lambda x: x[1], reverse=True)
-    #     return results
-

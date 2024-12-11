@@ -10,9 +10,9 @@ class DataReader:
         self.folder_path = folder_path
         self.data_frames = []
         self.file_names = [
-            "Internation_students_Canada.csv",
-            "Internation_students_Province_Canada.csv",
-            "International_Students_Study_level.csv"
+            "Students.csv",
+            "Province.csv",
+            "Studylevel.csv"
         ]
 
     def read_data(self):
@@ -53,43 +53,43 @@ class DataReader:
         """
         return self.data_frames.get(file_name, None)
 
-    def process_file(self, file_path, index_columns):
-        """
-        Xử lý một file cụ thể bằng cách chỉ định các cột làm chỉ mục.
-
-        Parameters:
-            file_path (str): Đường dẫn đến file cần xử lý.
-            index_columns (list): Danh sách các cột cần đặt làm chỉ mục.
-
-        Returns:
-            pd.DataFrame: DataFrame đã xử lý hoặc None nếu xảy ra lỗi.
-        """
-        try:
-            if not os.path.exists(file_path):
-                logging.error(f"File '{file_path}' không tồn tại.")
-                return None
-
-            logging.info(f"Đang xử lý file: {file_path}")
-            data = pd.read_csv(file_path, encoding="utf-8")
-            data.columns = data.columns.str.strip()
-
-            # Kiểm tra và đặt các cột làm chỉ mục
-            if all(col in data.columns for col in index_columns):
-                data.set_index(index_columns, inplace=True)
-                logging.info(f"Đã đặt các cột {index_columns} làm chỉ mục.")
-            else:
-                missing_columns = [col for col in index_columns if col not in data.columns]
-                logging.warning(f"Các cột sau không tồn tại trong file '{file_path}': {missing_columns}")
-
-            return data
-
-        except pd.errors.EmptyDataError:
-            logging.error(f"File '{file_path}' rỗng không thể xử lý.")
-            return None
-        except pd.errors.ParserError:
-            logging.error(f"Lỗi phân tích cú pháp file '{file_path}'.")
-            return None
-        except Exception as e:
-            logging.error(f"Lỗi không xác định khi xử lý file '{file_path}': {e}")
-            return None
-
+    # def process_file(self, file_path, index_columns):
+    #     """
+    #     Xử lý một file cụ thể bằng cách chỉ định các cột làm chỉ mục.
+    #
+    #     Parameters:
+    #         file_path (str): Đường dẫn đến file cần xử lý.
+    #         index_columns (list): Danh sách các cột cần đặt làm chỉ mục.
+    #
+    #     Returns:
+    #         pd.DataFrame: DataFrame đã xử lý hoặc None nếu xảy ra lỗi.
+    #     """
+    #     try:
+    #         if not os.path.exists(file_path):
+    #             logging.error(f"File '{file_path}' không tồn tại.")
+    #             return None
+    #
+    #         logging.info(f"Đang xử lý file: {file_path}")
+    #         data = pd.read_csv(file_path, encoding="utf-8")
+    #         data.columns = data.columns.str.strip()
+    #
+    #         # Kiểm tra và đặt các cột làm chỉ mục
+    #         if all(col in data.columns for col in index_columns):
+    #             data.set_index(index_columns, inplace=True)
+    #             logging.info(f"Đã đặt các cột {index_columns} làm chỉ mục.")
+    #         else:
+    #             missing_columns = [col for col in index_columns if col not in data.columns]
+    #             logging.warning(f"Các cột sau không tồn tại trong file '{file_path}': {missing_columns}")
+    #
+    #         return data
+    #
+    #     except pd.errors.EmptyDataError:
+    #         logging.error(f"File '{file_path}' rỗng không thể xử lý.")
+    #         return None
+    #     except pd.errors.ParserError:
+    #         logging.error(f"Lỗi phân tích cú pháp file '{file_path}'.")
+    #         return None
+    #     except Exception as e:
+    #         logging.error(f"Lỗi không xác định khi xử lý file '{file_path}': {e}")
+    #         return None
+    #

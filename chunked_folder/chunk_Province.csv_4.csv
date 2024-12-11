@@ -1,0 +1,6 @@
+Province/territory,year Sex,year 2015,year 2016,year 2017,year 2018,year 2019,year 2020,year 2021,year 2022,year 2023
+Province/territory: Quebec,year Sex: Male,"year 2015: 16,600","year 2016: 18,215","year 2017: 20,315","year 2018: 24,130","year 2019: 32,010","year 2020: 23,785","year 2021: 34,650","year 2022: 33,730","year 2023: 37,690"
+Province/territory: Quebec,year Sex: Another gender,year 2015: 0,year 2016: 0,year 2017: 0,year 2018: 0,year 2019: 0,year 2020: 0,year 2021: 0,year 2022: 5,year 2023: 20
+Province/territory: Quebec,year Sex: Gender not stated,year 2015: 0,year 2016: 0,year 2017: 0,year 2018: 0,year 2019: 0,year 2020: 0,year 2021: 0,year 2022: 0,year 2023: 5
+Province/territory: Ontario,year Sex: Female,"year 2015: 42,625","year 2016: 55,170","year 2017: 69,545","year 2018: 79,540","year 2019: 91,755","year 2020: 56,295","year 2021: 101,065","year 2022: 134,545","year 2023: 139,720"
+Province/territory: Ontario,year Sex: Male,"year 2015: 53,460","year 2016: 68,625","year 2017: 85,860","year 2018: 94,620","year 2019: 106,410","year 2020: 63,285","year 2021: 118,570","year 2022: 155,325","year 2023: 161,000"

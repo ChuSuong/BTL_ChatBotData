@@ -2,9 +2,11 @@ import logging
 import os
 
 class Chunker:
-    def __init__(self, data_frames, folder_path):
+    def __init__(self, data_frames, folder_path, output_file):
         self.data_frames = data_frames
         self.folder_path = folder_path
+        self.output_file = output_file
+
 
     def chunk_by_alpha(self, text_column, file_name):
         """Phân chia dữ liệu thành các phần theo chữ cái đầu tiên."""
@@ -22,7 +24,7 @@ class Chunker:
         grouped = df.groupby('first_letter')
 
         for group_name, group_df in grouped:
-            output_file = os.path.join(self.folder_path, f"chunk_{group_name}_{file_name}")
+            output_file = os.path.join(self.output_file, f"chunk_{group_name}_{file_name}")
             group_df.to_csv(output_file, index=False)
             logging.info(f"Đã lưu chunk '{group_name}' vào {output_file}.")
 
@@ -36,6 +38,6 @@ class Chunker:
         logging.info(f"Đang phân mảnh dữ liệu từ file '{file_name}' thành các chunk {chunk_size} hàng.")
         for i in range(0, len(df), chunk_size):
             chunk_df = df.iloc[i:i + chunk_size]
-            output_file = os.path.join(self.folder_path, f"chunk_{file_name}_{i // chunk_size + 1}.csv")
+            output_file = os.path.join(self.output_file, f"chunk_{file_name}_{i // chunk_size + 1}.csv")
             chunk_df.to_csv(output_file, index=False)
             logging.info(f"Đã lưu chunk vào {output_file}.")

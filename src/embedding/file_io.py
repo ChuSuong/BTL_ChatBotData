@@ -11,8 +11,8 @@ class FileIO:
         :param texts: List[str] - Danh sách văn bản gốc.
         :param embeddings: List[List[float]] - Danh sách các vector embedding.
         """
-        # if not os.path.exists(os.path.dirname(file_path)):
-        #     os.makedirs(os.path.dirname(file_path))  # Tạo thư mục nếu chưa tồn tại
+        if not os.path.exists(os.path.dirname(file_path)):
+            os.makedirs(os.path.dirname(file_path))  # Tạo thư mục nếu chưa tồn tại
         if len(texts) != len(embeddings):
             raise ValueError("Số lượng văn bản và embeddings không khớp.")
 
@@ -29,10 +29,6 @@ class FileIO:
             print(f"Đã lưu embeddings vào file: {file_path}")
         except Exception as e:
             print(f"Lỗi khi lưu embeddings vào file: {e}")
-        # with open(file_path, "w", encoding="utf-8") as f:
-        #     json.dump(data, f, indent=4, ensure_ascii=False)
-        #
-        # print(f"Dữ liệu đã được lưu thành công tại: {file_path}")
 
     @staticmethod
     def load_embeddings_from_json(file_path):
