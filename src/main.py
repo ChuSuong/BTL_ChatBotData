@@ -22,17 +22,20 @@ def initialize_system():
         logging.error("API KEY không tồn tại trong biến môi trường!")
         exit()
 
+    #Đường dẫn tới các file embedding
     archive_folder = "archive"
     chunked_folder = "chunked_folder"
     embeddings_output_path = "vector/embeddings.json"
-    # need_to_process_data = not file_exists(embeddings_output_path)
 
-    # Kiểm tra nếu embeddings file đã tồn tại thì bỏ qua việc xử lý chunking và embedding
-    if not file_exists(embeddings_output_path):
-        logging.info("Tiến hành xử lý dữ liệu...")
+    # Kiểm tra nếu embeddings đã tồn tại
+    if os.path.exists(embeddings_output_path):
+        logging.info("Embeddings đã tồn tại. Tải dữ liệu...")
+        vector_search = VectorSearch(embeddings_path=embeddings_output_path)
+    else:
+        logging.info("Embeddings chưa tồn tại. Tiến hành xử lý dữ liệu...")
+        # Đọc và xử lý dữ liệu từ file gốc
         data_reader = DataReader(api_key=API_KEY, folder_path=archive_folder)
         data_reader.read_data()
-        data_reader.display_data_frames()
 
         if data_reader.data_frames:
             chunker = Chunker(data_reader.data_frames, archive_folder, chunked_folder)
@@ -40,34 +43,31 @@ def initialize_system():
             chunker.chunk_by_rows(file_name="Province.csv", chunk_size=5, file_index=1)
             chunker.chunk_by_rows(file_name="Studylevel.csv", chunk_size=5, file_index=2)
 
+            # Tạo embeddings và lưu lại
+            csv_reader = CSVReader(output_file=chunked_folder)
+            embedder = TextEmbedder()
+            embeddings_per_file = []
 
-    csv_reader = CSVReader(output_file=chunked_folder)  # Đọc từ thư mục chunked_folder
-    embedder = TextEmbedder()
-    embeddings_per_file = []
-    # all_embeddings = []
+            for df, file_name in csv_reader.read_files():
+                texts = df.astype(str).apply(" ".join, axis=1).tolist()
+                embeddings = embedder.encode_text(texts)
+                for text, embedding in zip(texts, embeddings):
+                    embeddings_per_file.append({
+                        "file": file_name,
+                        "text": text,
+                        "embedding": embedding.tolist()
+                    })
 
-    for df, file_name in csv_reader.read_files():
-        # Chuyển đổi dữ liệu trong file thành văn bản
-        texts = df.astype(str).apply(" ".join, axis=1).tolist()
-        # Mã hóa (embedding) văn bản
-        embeddings = embedder.encode_text(texts)
-        # Lưu danh sách embedding của từng file
-        for text, embedding in zip(texts, embeddings):
-            embeddings_per_file.append({"file": file_name, "text": text, "embedding": embedding.tolist()})
+            FileIO.save_embeddings_to_json(
+                file_path=embeddings_output_path,
+                texts=[item['text'] for item in embeddings_per_file],
+                embeddings=[item['embedding'] for item in embeddings_per_file]
+            )
+            logging.info(f"Embedding đã được lưu vào file: {embeddings_output_path}")
 
-    FileIO.save_embeddings_to_json(
-        file_path=embeddings_output_path,
-        texts=[item['text'] for item in embeddings_per_file],
-        embeddings=[item['embedding'] for item in embeddings_per_file]
-    )
-    logging.info(f"Embedding đã được lưu vào file: {embeddings_output_path}")
-
-    try:
         vector_search = VectorSearch(embeddings_path=embeddings_output_path)
-    except Exception as e:
-        logging.error(f"Lỗi khi tải vector DB: {e}")
-        exit()
 
+    #Khởi tạo Chat Assistant
     chat_assistant = AIChatAssistant()
     return TextEmbedder(), vector_search, chat_assistant
 
@@ -146,12 +146,12 @@ def run_cli(embedder, vector_search, chat_assistant):
             print(result["error"])
         else:
             print(f"\nAI trả lời: {result['response']}")
-            for ref in result["references"]:
-                print(f"  - File: {ref['file']}")
-                print(f"    Text: {ref['text']}")
-                print(f"    Score: {ref['score']:.4f}")
-                print(f"    Embedding: {ref['embedding'][:5]}...")
-            print(f"\nĐiểm lệch chuẩn: {result['std_deviation']:.4f}")
+            # for ref in result["references"]:
+            #     print(f"  - File: {ref['file']}")
+            #     print(f"    Text: {ref['text']}")
+            #     print(f"    Score: {ref['score']:.4f}")
+            #     print(f"    Embedding: {ref['embedding'][:5]}...")
+            # print(f"\nĐiểm lệch chuẩn: {result['std_deviation']:.4f}")
             conversation_history = result["history"]
 
 if __name__ == "__main__":
