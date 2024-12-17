@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from .embedding import TextEmbedder
 from .embedding import VectorSearch
 
-
 class AIChatAssistant:
     def __init__(self, model_name="gpt-4o-mini", temperature=0.5, max_tokens=1000):
         load_dotenv()  # Load biến môi trường từ tệp .env

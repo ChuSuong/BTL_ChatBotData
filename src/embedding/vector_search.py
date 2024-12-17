@@ -1,7 +1,6 @@
 import json
 import numpy as np
 import os
-import heapq
 
 class VectorSearch:
     def __init__(self, embeddings_path):

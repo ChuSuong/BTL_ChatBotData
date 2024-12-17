@@ -1,27 +1,19 @@
 import streamlit as st
 import os
 import sys
-# from src.main import initialize_system, chat_with_ai
 
 # Thêm thư mục gốc vào sys.path
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
 
-# Import các hàm từ src/main.py
+# Import các hàm từ src/main.py, load một lần
 @st.cache_resource
 def get_system_resources():
     from src.main import initialize_system, chat_with_ai
     return (*initialize_system(), chat_with_ai)
 embedder, vector_search, chat_assistant, chat_with_ai = get_system_resources()
 
-# try:
-#     from src.main import initialize_system, chat_with_ai
-# except ModuleNotFoundError as e:
-#     st.error(f"Lỗi import module: {e}")
-#     raise e
-
-# embedder, vector_search, chat_assistant = initialize_system()
 # Lưu trữ lịch sử trò chuyện
 if "conversation_history" not in st.session_state:
     st.session_state.conversation_history = []
