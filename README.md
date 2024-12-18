@@ -17,6 +17,9 @@
 - SentenceTransformer
 - NumPy: Xử lý và tính toán các vector.
 - JSON: Quản lý dữ liệu đầu vào/đầu ra.
+- Python-dotenv #Tải các biến môi trường từ file .env
+- Langchain_openai  #Kết nối AI
+- Streamlit #Chạy giao diện ChatBot
   
 ## Cài đặt
 1. **Clone repository**:
