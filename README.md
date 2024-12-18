@@ -21,8 +21,7 @@
 ## Cài đặt
 1. **Clone repository**:
    ```bash
-   
-   cd BMD-Machine-Control
+      https://github.com/ChuSuong/BTL_Python.git
    ```
 
 2. **Cài đặt môi trường ảo**:
