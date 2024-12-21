@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # BTL_Python# Ứng dụng Chatbot Hỏi Đáp Cơ Bản trên Dữ Liệu Cố Định
+=======
+# Ứng dụng Chatbot Hỏi Đáp Cơ Bản trên Dữ Liệu Cố Định
+>>>>>>> d99ec7d4d1b16654b6705fa21733a40de310f457
 
 ## Giới thiệu: 
 Ứng dụng Chatbot Hỏi Đáp được xây dựng để cung cấp các câu trả lời dựa trên một tập dữ liệu cố định.Chatbot này có thể: 
@@ -96,4 +100,8 @@ BTL_Python/
 ## Tài liệu tham khảo
 
 
+<<<<<<< HEAD
 ## Giấy phép
+=======
+## Giấy phép
+>>>>>>> d99ec7d4d1b16654b6705fa21733a40de310f457

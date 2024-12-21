@@ -4,4 +4,10 @@ sentence-transformers
 pandas
 langchain_openai  #Kết nối AI
 langchain-core
+<<<<<<< HEAD
 streamlit #Chạy cấu hình ChatBot
+=======
+streamlit #Chạy cấu hình ChatBot
+
+
+>>>>>>> d99ec7d4d1b16654b6705fa21733a40de310f457
