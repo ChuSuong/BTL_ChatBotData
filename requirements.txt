@@ -1,5 +1,7 @@
-streamlit
+python-dotenv #Tải các biến môi trường từ file .env
+numpy
 sentence-transformers
 pandas
-numpy
-langchain
+langchain_openai  #Kết nối AI
+langchain-core
+streamlit #Chạy cấu hình ChatBot
